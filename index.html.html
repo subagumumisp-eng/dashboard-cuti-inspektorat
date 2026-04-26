@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Saldo Cuti – Inspektorat Bojonegoro</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface2: #1e2530;
+  --border: #30363d;
+  --accent: #00c896;
+  --accent2: #3b9eff;
+  --accent3: #f7a848;
+  --accent4: #e05c5c;
+  --text: #e6edf3;
+  --text-muted: #7d8590;
+  --text-dim: #484f58;
+  --radius: 12px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.5);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* HEADER */
+.header {
+  background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #1a2535 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 24px 32px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+}
+
+.logo-wrap {
+  width: 48px; height: 48px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.header-text h1 {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  color: var(--text);
+}
+
+.header-text p {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.header-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.badge {
+  background: rgba(0,200,150,0.12);
+  color: var(--accent);
+  border: 1px solid rgba(0,200,150,0.25);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'DM Mono', monospace;
+}
+
+/* LAYOUT */
+.container { max-width: 1400px; margin: 0 auto; padding: 32px; }
+
+/* STATS CARDS */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.stat-card:hover { transform: translateY(-2px); }
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+
+.stat-card.green::before { background: var(--accent); }
+.stat-card.blue::before { background: var(--accent2); }
+.stat-card.orange::before { background: var(--accent3); }
+.stat-card.red::before { background: var(--accent4); }
+
+.stat-card:hover.green { border-color: rgba(0,200,150,0.4); }
+.stat-card:hover.blue { border-color: rgba(59,158,255,0.4); }
+.stat-card:hover.orange { border-color: rgba(247,168,72,0.4); }
+.stat-card:hover.red { border-color: rgba(224,92,92,0.4); }
+
+.stat-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-size: 36px;
+  font-weight: 800;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: -1px;
+}
+
+.green .stat-value { color: var(--accent); }
+.blue .stat-value { color: var(--accent2); }
+.orange .stat-value { color: var(--accent3); }
+.red .stat-value { color: var(--accent4); }
+
+.stat-sub {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 6px;
+}
+
+/* MAIN CONTENT GRID */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 20px;
+  align-items: start;
+}
+
+/* PANEL */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.panel-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface2);
+}
+
+.panel-header h2 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  flex: 1;
+}
+
+.panel-icon { font-size: 16px; }
+
+/* SEARCH + FILTER */
+.controls {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
+.search-wrap svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-dim);
+}
+
+input[type="text"] {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px 10px 36px;
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+input[type="text"]:focus { border-color: var(--accent); }
+
+.sort-btn {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.sort-btn:hover, .sort-btn.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(0,200,150,0.08);
+}
+
+/* TABLE */
+.table-wrap {
+  overflow-x: auto;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+th {
+  background: var(--surface2);
+  padding: 12px 16px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  text-align: left;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  user-select: none;
+}
+
+th:hover { color: var(--text); }
+
+tbody tr {
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+tbody tr:hover { background: var(--surface2); }
+tbody tr.selected { background: rgba(0,200,150,0.08); border-left: 3px solid var(--accent); }
+
+td {
+  padding: 13px 16px;
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+.td-no {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+  width: 40px;
+}
+
+.td-nama {
+  font-weight: 600;
+  max-width: 220px;
+}
+
+.td-jabatan {
+  color: var(--text-muted);
+  font-size: 12px;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.td-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 24px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: 'DM Mono', monospace;
+}
+
+.pill-full { background: rgba(0,200,150,0.15); color: var(--accent); }
+.pill-mid { background: rgba(247,168,72,0.15); color: var(--accent3); }
+.pill-low { background: rgba(224,92,92,0.15); color: var(--accent4); }
+.pill-zero { background: rgba(125,133,144,0.15); color: var(--text-dim); }
+
+.total-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  height: 26px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 800;
+  font-family: 'DM Mono', monospace;
+  padding: 0 8px;
+}
+
+.total-high { background: rgba(0,200,150,0.12); color: var(--accent); border: 1px solid rgba(0,200,150,0.3); }
+.total-mid { background: rgba(59,158,255,0.12); color: var(--accent2); border: 1px solid rgba(59,158,255,0.3); }
+.total-low { background: rgba(247,168,72,0.12); color: var(--accent3); border: 1px solid rgba(247,168,72,0.3); }
+.total-zero { background: rgba(125,133,144,0.1); color: var(--text-dim); border: 1px solid var(--border); }
+
+/* DETAIL PANEL */
+.detail-panel {
+  position: sticky;
+  top: 100px;
+}
+
+.detail-empty {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--text-dim);
+}
+
+.detail-empty .icon { font-size: 40px; margin-bottom: 12px; }
+.detail-empty p { font-size: 13px; }
+
+.detail-content { padding: 20px; }
+
+.detail-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 4px;
+}
+
+.detail-nip {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.detail-jabatan {
+  font-size: 12px;
+  color: var(--accent2);
+  font-weight: 600;
+  background: rgba(59,158,255,0.1);
+  border: 1px solid rgba(59,158,255,0.2);
+  border-radius: 6px;
+  padding: 4px 10px;
+  display: inline-block;
+  margin-bottom: 20px;
+}
+
+.cuti-bars { display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
+
+.cuti-bar-item { }
+
+.cuti-bar-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.cuti-bar-label span:first-child {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.cuti-bar-label span:last-child {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.bar-track {
+  height: 8px;
+  background: var(--bg);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+
+.bar-n2 .bar-fill { background: linear-gradient(90deg, #e05c5c, #f7a848); }
+.bar-n1 .bar-fill { background: linear-gradient(90deg, #f7a848, #3b9eff); }
+.bar-n .bar-fill { background: linear-gradient(90deg, #3b9eff, #00c896); }
+
+.total-section {
+  background: linear-gradient(135deg, rgba(0,200,150,0.08), rgba(59,158,255,0.08));
+  border: 1px solid rgba(0,200,150,0.2);
+  border-radius: 10px;
+  padding: 16px 20px;
+  text-align: center;
+}
+
+.total-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.total-big {
+  font-size: 48px;
+  font-weight: 800;
+  font-family: 'DM Mono', monospace;
+  color: var(--accent);
+  letter-spacing: -2px;
+  line-height: 1;
+}
+
+.total-max {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+/* DONUT CHART */
+.donut-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 16px 0;
+}
+
+svg.donut { overflow: visible; }
+
+/* SIDEBAR RIGHT - TOP PEGAWAI */
+.top-list { padding: 0; }
+.top-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.top-item:hover { background: var(--surface2); }
+.top-item:last-child { border-bottom: none; }
+
+.top-rank {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+  width: 18px;
+  text-align: center;
+}
+
+.top-rank.gold { color: #f7a848; }
+.top-rank.silver { color: #8ba3bc; }
+.top-rank.bronze { color: #cd7f32; }
+
+.top-nama {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.top-total {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* PAGINATION */
+.pagination {
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.page-info {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: 'DM Mono', monospace;
+}
+
+.page-btns { display: flex; gap: 6px; }
+
+.page-btn {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 12px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.page-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.page-btn.active { background: var(--accent); border-color: var(--accent); color: #000; }
+
+/* CHART BAR */
+.dist-chart { padding: 16px 20px; }
+.dist-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.dist-label { font-size: 11px; color: var(--text-muted); width: 80px; text-align: right; flex-shrink: 0; }
+.dist-track { flex: 1; height: 20px; background: var(--bg); border-radius: 4px; overflow: hidden; border: 1px solid var(--border); }
+.dist-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; }
+.dist-count { font-size: 10px; font-weight: 700; font-family: 'DM Mono', monospace; color: #000; }
+.dist-fill.c1 { background: linear-gradient(90deg, #00c896, #00e5aa); }
+.dist-fill.c2 { background: linear-gradient(90deg, #3b9eff, #5db5ff); }
+.dist-fill.c3 { background: linear-gradient(90deg, #f7a848, #ffbe6a); }
+.dist-fill.c4 { background: linear-gradient(90deg, #e05c5c, #f57070); }
+
+@media (max-width: 1100px) {
+  .main-grid { grid-template-columns: 1fr; }
+  .detail-panel { position: static; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .container { padding: 16px; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .header { padding: 16px; }
+}
+
+.tag {
+  display: inline-flex; align-items: center;
+  background: rgba(125,133,144,0.1); border: 1px solid var(--border);
+  border-radius: 4px; padding: 2px 8px;
+  font-size: 10px; color: var(--text-muted);
+  font-family: 'DM Mono', monospace;
+  margin-top: 8px;
+}
+
+.separator {
+  height: 1px;
+  background: var(--border);
+  margin: 16px 0;
+}
+
+.no-result {
+  padding: 48px;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 13px;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-wrap">🏛️</div>
+  <div class="header-text">
+    <h1>Dashboard Saldo Cuti Tahunan</h1>
+    <p>Inspektorat Kabupaten Bojonegoro – Tahun 2026</p>
+  </div>
+  <div class="header-right">
+    <div class="badge">95 Pegawai</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card green">
+      <div class="stat-label">Total Sisa Cuti Keseluruhan</div>
+      <div class="stat-value" id="totalAll">—</div>
+      <div class="stat-sub">dari seluruh pegawai aktif</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-label">Rata-rata Per Pegawai</div>
+      <div class="stat-value" id="avgTotal">—</div>
+      <div class="stat-sub">hari cuti rata-rata</div>
+    </div>
+    <div class="stat-card orange">
+      <div class="stat-label">Pegawai Cuti Penuh (24 hari)</div>
+      <div class="stat-value" id="fullCount">—</div>
+      <div class="stat-sub">memiliki saldo maksimal</div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-label">Pegawai Saldo Nol</div>
+      <div class="stat-value" id="zeroCount">—</div>
+      <div class="stat-sub">belum memiliki saldo cuti</div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid">
+
+    <!-- LEFT: TABLE -->
+    <div>
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-icon">👥</span>
+          <h2>Daftar Pegawai</h2>
+          <span style="font-size:12px;color:var(--text-dim);font-family:'DM Mono',monospace;" id="countLabel"></span>
+        </div>
+        <div class="controls">
+          <div class="search-wrap">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="searchInput" placeholder="Cari nama atau jabatan...">
+          </div>
+          <button class="sort-btn" onclick="sortBy('NAMA')">Nama ↕</button>
+          <button class="sort-btn" onclick="sortBy('TOTAL')">Total ↕</button>
+          <button class="sort-btn" onclick="sortBy('N')">N ↕</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th class="td-no">No</th>
+                <th>Nama Pegawai</th>
+                <th style="max-width:160px">Jabatan</th>
+                <th style="text-align:center">N-2<br><span style="font-size:9px;font-weight:400;color:var(--text-dim)">2024</span></th>
+                <th style="text-align:center">N-1<br><span style="font-size:9px;font-weight:400;color:var(--text-dim)">2025</span></th>
+                <th style="text-align:center">N<br><span style="font-size:9px;font-weight:400;color:var(--text-dim)">2026</span></th>
+                <th style="text-align:center">Total</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+          <div id="noResult" class="no-result" style="display:none">Tidak ada pegawai ditemukan.</div>
+        </div>
+        <div class="pagination">
+          <div class="page-info" id="pageInfo"></div>
+          <div class="page-btns" id="pageBtns"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div style="display:flex;flex-direction:column;gap:16px;">
+
+      <!-- DETAIL PANEL -->
+      <div class="panel detail-panel" id="detailPanel">
+        <div class="panel-header">
+          <span class="panel-icon">📋</span>
+          <h2>Detail Pegawai</h2>
+        </div>
+        <div id="detailContent">
+          <div class="detail-empty">
+            <div class="icon">👆</div>
+            <p>Klik nama pegawai<br>untuk melihat detail saldo cuti</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- DISTRIBUSI -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-icon">📊</span>
+          <h2>Distribusi Total Cuti</h2>
+        </div>
+        <div class="dist-chart" id="distChart"></div>
+      </div>
+
+      <!-- TOP 10 -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-icon">🏆</span>
+          <h2>Saldo Cuti Tertinggi</h2>
+        </div>
+        <div class="top-list" id="topList"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const DATA = [{"NO":1,"NAMA":"ACHMAD GUNAWAN FERDIANSYAH., S.STP.","NIP":"19780624 199701 1 001","JABATAN":"Inspektur","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":2,"NAMA":"DIDIT SUGIARTO, S.STP.","NIP":"19780320 199701 1 001","JABATAN":"Sekretaris","N2":6,"N1":6,"N":11,"TOTAL":23},{"NO":3,"NAMA":"MOCHAMMAD HAMDANI, S.T., M.M.","NIP":"19750907 200312 1 007","JABATAN":"Inspektur Pembantu Wilayah I","N2":4,"N1":0,"N":12,"TOTAL":16},{"NO":4,"NAMA":"ARNASZ SETYAWAN, S.T.","NIP":"19740813 200112 1 004","JABATAN":"Inspektur Pembantu Wilayah II","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":5,"NAMA":"JONI AGUS HANDOKO, S.E., M.M.","NIP":"19760624 200312 1 004","JABATAN":"Inspektur Pembantu Wilayah III","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":6,"NAMA":"RAHMAT JUNAIDI, S.KM, M.Kes, MPH.","NIP":"19730601 199303 1 004","JABATAN":"Inspektur Pembantu Bidang Pencegahan Tipikor dan Pengawas Reformasi Birokrasi","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":7,"NAMA":"HENING ANITASARI, S.E.","NIP":"19771216 200112 2 002","JABATAN":"Kasubag Umum dan Kepegawaian","N2":6,"N1":6,"N":11,"TOTAL":23},{"NO":8,"NAMA":"ADITYA WIDYANTO, S.E., M.M.","NIP":"19870706 201101 1 010","JABATAN":"Analis Anggaran Ahli Muda Sub Koordinator Keuangan","N2":6,"N1":1,"N":10,"TOTAL":17},{"NO":9,"NAMA":"TEGUH PRIHANDONO, Ak.,M.M.","NIP":"19660626 198703 1 001","JABATAN":"Auditor Madya","N2":6,"N1":2,"N":9,"TOTAL":17},{"NO":10,"NAMA":"ETIK SARIYANTI, S.E.","NIP":"19741009 200312 2 006","JABATAN":"Auditor Madya","N2":6,"N1":6,"N":10,"TOTAL":22},{"NO":11,"NAMA":"IMAM WAHYUDI, S.E., M.M.","NIP":"19740715 200312 1 005","JABATAN":"Auditor Madya","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":12,"NAMA":"ARIF HENDRA SUSANTO, S.Sos., M.M.","NIP":"19730316 199903 1 002","JABATAN":"Auditor Madya","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":13,"NAMA":"HAFIDHIN RAHMAWAN, S.E., M.M.","NIP":"19841130 200903 1 004","JABATAN":"Auditor Madya","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":14,"NAMA":"DIDIK SUPRIYADI, S.K.M., M.M.","NIP":"19750208 200604 1 015","JABATAN":"Auditor Muda","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":15,"NAMA":"SIGIT GUNAWAN, S.E., M.M.","NIP":"19750605 200903 1 002","JABATAN":"Auditor Muda","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":16,"NAMA":"ATHWAR ASHAR, S.E.","NIP":"19840107 201503 1 001","JABATAN":"Auditor Muda","N2":6,"N1":6,"N":10,"TOTAL":22},{"NO":17,"NAMA":"DEWI RETNO INDRIANI, S.E.","NIP":"19870812 201101 2 021","JABATAN":"Auditor Muda","N2":0,"N1":6,"N":12,"TOTAL":18},{"NO":18,"NAMA":"IKE RIZKY AMALIA, S.E.","NIP":"19870920 201101 2 016","JABATAN":"Auditor Muda","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":19,"NAMA":"ERWIN ANDRIANSYAH, S.E.","NIP":"19750522 201001 1 001","JABATAN":"Auditor Muda","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":20,"NAMA":"TOMY WAHYU SETIAWAN, S.E.","NIP":"19740303 200604 1 011","JABATAN":"Auditor Muda","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":21,"NAMA":"SUGENG WAHYU UTOMO, S.H.","NIP":"19830122 201101 1 001","JABATAN":"Auditor Muda","N2":3,"N1":6,"N":7,"TOTAL":16},{"NO":22,"NAMA":"ADITYA WIDODO, S.E.","NIP":"19841226 200903 1 004","JABATAN":"Auditor Muda","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":23,"NAMA":"NINING KISMOYOWATI, S.E.","NIP":"19780511 200312 2 005","JABATAN":"Auditor Muda","N2":6,"N1":6,"N":9,"TOTAL":21},{"NO":24,"NAMA":"LUQMAN EFFENDY, S.E.","NIP":"19850420 201503 1 001","JABATAN":"Auditor Muda","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":25,"NAMA":"M. ARBAI HADI SUSANTO, S.E., M.M.","NIP":"19840520 200501 1 005","JABATAN":"Auditor Muda","N2":3,"N1":6,"N":9,"TOTAL":18},{"NO":26,"NAMA":"PUTRI JUNIANTI, S.Sos, M.M.","NIP":"19840615 200604 2 014","JABATAN":"Auditor Muda","N2":6,"N1":3,"N":12,"TOTAL":21},{"NO":27,"NAMA":"BUDI ISMANTO, S.T.","NIP":"19850408 200501 1 001","JABATAN":"Auditor Muda","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":28,"NAMA":"SUSANTI, S.E.","NIP":"19790715 201406 2 003","JABATAN":"Auditor Pertama","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":29,"NAMA":"RIZKY PRAMUDYA, S.E.","NIP":"19870109 201903 1 002","JABATAN":"Auditor Pertama","N2":6,"N1":6,"N":11,"TOTAL":23},{"NO":30,"NAMA":"NOER AZIZAH FITRIYANTI, S.H., M.M.","NIP":"19900503 201903 2 006","JABATAN":"Auditor Pertama","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":31,"NAMA":"SITI MAMLU'ATUN NI'MAH, S.H.","NIP":"19890626 202204 2 001","JABATAN":"Auditor Pertama","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":32,"NAMA":"IZZATI RAHMA NURFITRIA, S.A.","NIP":"19980709 202204 2 001","JABATAN":"Auditor Pertama","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":33,"NAMA":"RATNA DIAN NAUVALIA, S.A.","NIP":"19960423 202204 2 002","JABATAN":"Auditor Pertama","N2":6,"N1":6,"N":9,"TOTAL":21},{"NO":34,"NAMA":"DWI ILHAM SETYAWAN. S.H.","NIP":"19920708 202204 1 001","JABATAN":"Auditor Pertama","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":35,"NAMA":"AHMAD SHOLIHUL HADI, S.E","NIP":"19950323 202204 1 001","JABATAN":"Auditor Pertama","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":36,"NAMA":"ALFIAN FIKRI DWI NIZARI, S.A.","NIP":"19921126 202204 1 001","JABATAN":"Auditor Pertama","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":37,"NAMA":"SEPHIA AYU PERMATASARI, S.Ak.","NIP":"20010228 202504 2 008","JABATAN":"Auditor Pertama","N2":0,"N1":0,"N":0,"TOTAL":0},{"NO":38,"NAMA":"HANI NUR ADNIN, S.A.P.","NIP":"20010808 202504 2 007","JABATAN":"Auditor Pertama","N2":0,"N1":0,"N":0,"TOTAL":0},{"NO":39,"NAMA":"ELENTYA NOVIANTIKA SATWARA, S.E.","NIP":"20001103 202504 2 006","JABATAN":"Auditor Pertama","N2":0,"N1":0,"N":0,"TOTAL":0},{"NO":40,"NAMA":"WIGATI LUHURING BUDI, S.Tr.Ak.","NIP":"20001218 202504 2 011","JABATAN":"Auditor Pertama","N2":0,"N1":0,"N":0,"TOTAL":0},{"NO":41,"NAMA":"DWI KURNIA, S.E.","NIP":"19960324 202504 2 003","JABATAN":"Auditor Pertama","N2":0,"N1":0,"N":0,"TOTAL":0},{"NO":42,"NAMA":"ADITHYA PURWA NAGARA, S.E.","NIP":"19990623 202504 1 004","JABATAN":"Auditor Pertama","N2":0,"N1":0,"N":0,"TOTAL":0},{"NO":43,"NAMA":"NISA SAFA'ATIN, S.A.P","NIP":"20000723 202504 2 011","JABATAN":"Auditor Pertama","N2":0,"N1":0,"N":0,"TOTAL":0},{"NO":44,"NAMA":"FEBRIAN GITYA CAHYA PRATAMA, S.A.","NIP":"19970217 202504 1 005","JABATAN":"Auditor Pertama","N2":0,"N1":0,"N":0,"TOTAL":0},{"NO":45,"NAMA":"NUR INDAH SARI, S.Tr.Ak.","NIP":"20000421 202504 2 008","JABATAN":"Auditor Pertama","N2":0,"N1":0,"N":0,"TOTAL":0},{"NO":46,"NAMA":"CAHAYATIKA BUDI UTAMI, S.H.","NIP":"19980416 202504 2 007","JABATAN":"Auditor Pertama","N2":0,"N1":0,"N":0,"TOTAL":0},{"NO":47,"NAMA":"JULIA HANDAYANI, S.Tr.Ak.","NIP":"19990729 202504 2 005","JABATAN":"Auditor Pertama","N2":0,"N1":0,"N":0,"TOTAL":0},{"NO":48,"NAMA":"NADIA SUKMAWATI, S.A.P","NIP":"20000618 202504 2 005","JABATAN":"Auditor Pertama","N2":0,"N1":0,"N":0,"TOTAL":0},{"NO":49,"NAMA":"INTAN KHUSNARIA ROFIQOH, S.A.","NIP":"19980617 202504 2 008","JABATAN":"Auditor Pertama","N2":0,"N1":0,"N":0,"TOTAL":0},{"NO":50,"NAMA":"MUHAMMAD ZACKY ABDALLA, S.AP.","NIP":"19941110 202504 1 002","JABATAN":"Auditor Pertama","N2":0,"N1":0,"N":0,"TOTAL":0},{"NO":51,"NAMA":"MAYANG ARDINA, S.E.","NIP":"20010118 202504 2 006","JABATAN":"Auditor Pertama","N2":0,"N1":0,"N":0,"TOTAL":0},{"NO":52,"NAMA":"A'AD RIZAL FAUZI, S.E.","NIP":"19980428 202504 1 002","JABATAN":"Auditor Pertama","N2":0,"N1":0,"N":0,"TOTAL":0},{"NO":53,"NAMA":"NURUL QOIRIAWATI, S.Ak.","NIP":"19971014 202504 2 010","JABATAN":"Auditor Pertama","N2":0,"N1":0,"N":0,"TOTAL":0},{"NO":54,"NAMA":"AGATHA SANTI KURNIASARI, S.E.","NIP":"20000325 202504 2 007","JABATAN":"Auditor Pertama","N2":0,"N1":0,"N":0,"TOTAL":0},{"NO":55,"NAMA":"NIA ARYANTI, S.E.","NIP":"19950128 202504 2 005","JABATAN":"Auditor Pertama","N2":0,"N1":0,"N":0,"TOTAL":0},{"NO":56,"NAMA":"BAGUS HENDY SUARDANA, S.AP.","NIP":"19920901 202504 1 003","JABATAN":"Auditor Pertama","N2":0,"N1":0,"N":0,"TOTAL":0},{"NO":57,"NAMA":"VEBRILDA AYU AURELLIA, A.Md.Ak.","NIP":"20000130 202202 2 001","JABATAN":"Auditor Terampil","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":58,"NAMA":"MUHAMMAD HAFIDZ FAHREZI, A.Md.Ak.","NIP":"20000604 202408 1 001","JABATAN":"Auditor Terampil","N2":0,"N1":5,"N":8,"TOTAL":13},{"NO":59,"NAMA":"TAPTAP WAHYU DAMARA, A.Md.Ak.","NIP":"20010501 202408 1 001","JABATAN":"Auditor Terampil","N2":0,"N1":4,"N":8,"TOTAL":12},{"NO":60,"NAMA":"SRI ANDAYANI, S.Kom., M.M.","NIP":"19740317 200112 2 004","JABATAN":"PPUPD Ahli Muda","N2":6,"N1":6,"N":9,"TOTAL":21},{"NO":61,"NAMA":"YULIA KHARISMANITA, S.STP., M.M.","NIP":"19850723 200312 2 001","JABATAN":"PPUPD Ahli Muda","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":62,"NAMA":"ALVIA DWI CAHYANINGTYAS, S.T., M.M.","NIP":"19760504 201001 2 002","JABATAN":"PPUPD Ahli Muda","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":63,"NAMA":"NOVIA DWIYANAWATI, S.Sos.","NIP":"19911120 201503 2 001","JABATAN":"PPUPD Ahli Muda","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":64,"NAMA":"DWI KURNIAWATI, S.Sos.","NIP":"19830820 200112 2 002","JABATAN":"PPUPD Ahli Muda","N2":6,"N1":2,"N":11,"TOTAL":19},{"NO":65,"NAMA":"SUTRISNIAWATI, S.Sos.","NIP":"19871104 200604 2 003","JABATAN":"PPUPD Ahli Muda","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":66,"NAMA":"FAIZAHTUR ROHMIAH, S.T.","NIP":"19790726 201101 2 003","JABATAN":"PPUPD Ahli Pertama","N2":5,"N1":0,"N":12,"TOTAL":17},{"NO":67,"NAMA":"YOYADA, S.E.","NIP":"19830415 201503 1 001","JABATAN":"PPUPD Ahli Pertama","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":68,"NAMA":"SITI SRI UNARTI, S.STP.","NIP":"19970927 201908 2 001","JABATAN":"PPUPD Ahli Pertama","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":69,"NAMA":"ROMADI, S.Pd., S.T.","NIP":"19840627 201503 1 001","JABATAN":"PPUPD Ahli Pertama","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":70,"NAMA":"RAHMAD FIRDANSYAH, S.Tr.IP.","NIP":"20000628 202308 1 001","JABATAN":"PPUPD Ahli Pertama","N2":6,"N1":2,"N":9,"TOTAL":17},{"NO":71,"NAMA":"FIRNANDA WIRAYUDHA, S.Tr.IP.","NIP":"20011019 202409 1 002","JABATAN":"PPUPD Ahli Pertama","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":72,"NAMA":"RIFATUL LAILIYAH, S.E.","NIP":"19911122 202504 2 002","JABATAN":"PPUPD Ahli Pertama","N2":0,"N1":0,"N":0,"TOTAL":0},{"NO":73,"NAMA":"NURUL AFIFAH, S.Ak.","NIP":"19991014 202504 2 007","JABATAN":"PPUPD Ahli Pertama","N2":0,"N1":0,"N":0,"TOTAL":0},{"NO":74,"NAMA":"SITI MUNIFATUR ROFIFAH, S.Ak.","NIP":"19971108 202504 2 004","JABATAN":"PPUPD Ahli Pertama","N2":0,"N1":0,"N":0,"TOTAL":0},{"NO":75,"NAMA":"RYCO IMAM SYARIFUDDIN, S.I.P.","NIP":"19971122 202504 1 004","JABATAN":"PPUPD Ahli Pertama","N2":0,"N1":0,"N":0,"TOTAL":0},{"NO":76,"NAMA":"MILKA MARTHA AGUSTA, S.E.","NIP":"19920822 202504 2 005","JABATAN":"PPUPD Ahli Pertama","N2":0,"N1":0,"N":0,"TOTAL":0},{"NO":77,"NAMA":"NUNIK NURYANASARI, S.E.","NIP":"19840627 201402 2 001","JABATAN":"Penelaah Teknis Kebijakan","N2":0,"N1":6,"N":9,"TOTAL":15},{"NO":78,"NAMA":"YOESEF ELLYABRAHAM, S.H., M.M.","NIP":"19850828 200312 1 007","JABATAN":"Bendahara","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":79,"NAMA":"SYAIFUL AMIN, S.H.","NIP":"19820825 201001 1 002","JABATAN":"Analis Layanan Umum","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":80,"NAMA":"UBAID IS NUR ROSYID PRASETYO, S.Tr.IP.","NIP":"20000620 202208 1 002","JABATAN":"Analis Data dan Informasi","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":81,"NAMA":"MOCHAMAD KHIRZAENI ILYASA, S.Kom.","NIP":"19991003 202504 1 004","JABATAN":"Penata Kelola Sistem dan Teknologi Informasi","N2":0,"N1":0,"N":0,"TOTAL":0},{"NO":82,"NAMA":"GALANG PUTRA PRATAMA, A.Md.A.Pj.","NIP":"19990806 202202 1 001","JABATAN":"Pengelola Data","N2":6,"N1":6,"N":12,"TOTAL":24},{"NO":83,"NAMA":"AHMAD FATWA AL-AMIN, A.Md.A.Pj.","NIP":"20000711 202202 1 001","JABATAN":"Pengelola Data","N2":6,"N1":4,"N":9,"TOTAL":19},{"NO":84,"NAMA":"MUHAMMAD FADHIL MUKTAZ, A.Md.A.Pj.","NIP":"20010621 202202 1 001","JABATAN":"Pengelola Data","N2":4,"N1":2,"N":12,"TOTAL":18},{"NO":85,"NAMA":"ANDHINI SALSABILA FAUZIYAH, A.Md.Ak.","NIP":"20000726 202202 2 001","JABATAN":"Pengelola Data","N2":6,"N1":2,"N":9,"TOTAL":17},{"NO":86,"NAMA":"MUHAMMAD FIKRI PRATAMA, A.Md.A.Pj.","NIP":"20000112 202202 1 001","JABATAN":"Pengelola Program dan Laporan","N2":1,"N1":4,"N":9,"TOTAL":14},{"NO":87,"NAMA":"MUHAMMAD ALFIN NURFALAH, A.Md.A.Pj.","NIP":"20001013 202202 1 001","JABATAN":"Pengelola Program dan Laporan","N2":6,"N1":6,"N":8,"TOTAL":20},{"NO":88,"NAMA":"SEPTIAN HARIS NUGROHO, S.H.","NIP":"19830911 202521 1 005","JABATAN":"Penata Layana Operasional","N2":0,"N1":0,"N":12,"TOTAL":12},{"NO":89,"NAMA":"FANDI SETYA HARIANTO, S.Sos.","NIP":"19821117 202521 1 014","JABATAN":"Penata Layana Operasional","N2":0,"N1":0,"N":12,"TOTAL":12},{"NO":90,"NAMA":"TONY WIDIANTO WIBAWA, A.Md.Par","NIP":"19770502 202521 1 012","JABATAN":"Pengelola Layana Operasional","N2":0,"N1":0,"N":12,"TOTAL":12},{"NO":91,"NAMA":"TEGUH SULISTYONO","NIP":"19790206 202521 1 004","JABATAN":"Pengadministrasi Perkantoran","N2":0,"N1":0,"N":12,"TOTAL":12},{"NO":92,"NAMA":"S U R Y A N T O","NIP":"19830830 202521 1 006","JABATAN":"Pengadministrasi Perkantoran","N2":0,"N1":0,"N":12,"TOTAL":12},{"NO":93,"NAMA":"JOKO PURWANTO","NIP":"19850208 202521 1 004","JABATAN":"Pengadministrasi Perkantoran","N2":0,"N1":0,"N":12,"TOTAL":12},{"NO":94,"NAMA":"IRFAN ADITIYA","NIP":"20000420 202521 1 003","JABATAN":"Pengelola Umum Operasional","N2":0,"N1":0,"N":12,"TOTAL":12},{"NO":95,"NAMA":"FATIKHARIZZA AULIA","NIP":"-","JABATAN":"Tenaga Administrasi Kantor","N2":0,"N1":0,"N":0,"TOTAL":0}];
+
+let filtered = [...DATA];
+let sortField = null;
+let sortAsc = true;
+let currentPage = 1;
+const PER_PAGE = 20;
+let selectedIdx = null;
+
+function pillClass(val, max) {
+  if (val === 0) return 'pill-zero';
+  const pct = val / max;
+  if (pct >= 1) return 'pill-full';
+  if (pct >= 0.5) return 'pill-mid';
+  return 'pill-low';
+}
+
+function totalClass(t) {
+  if (t >= 24) return 'total-high';
+  if (t >= 16) return 'total-mid';
+  if (t > 0) return 'total-low';
+  return 'total-zero';
+}
+
+function renderStats() {
+  const totalAll = DATA.reduce((s,d) => s+d.TOTAL, 0);
+  const avg = Math.round(totalAll / DATA.length);
+  const full = DATA.filter(d => d.TOTAL >= 24).length;
+  const zero = DATA.filter(d => d.TOTAL === 0).length;
+  document.getElementById('totalAll').textContent = totalAll.toLocaleString('id-ID');
+  document.getElementById('avgTotal').textContent = avg;
+  document.getElementById('fullCount').textContent = full;
+  document.getElementById('zeroCount').textContent = zero;
+}
+
+function renderTable() {
+  const start = (currentPage - 1) * PER_PAGE;
+  const pageData = filtered.slice(start, start + PER_PAGE);
+  const tbody = document.getElementById('tableBody');
+  const noResult = document.getElementById('noResult');
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    noResult.style.display = 'block';
+  } else {
+    noResult.style.display = 'none';
+    tbody.innerHTML = pageData.map((d, i) => `
+      <tr onclick="selectRow(${DATA.indexOf(d)})" class="${selectedIdx === DATA.indexOf(d) ? 'selected' : ''}">
+        <td class="td-no">${d.NO}</td>
+        <td class="td-nama">${d.NAMA}</td>
+        <td class="td-jabatan" title="${d.JABATAN}">${d.JABATAN}</td>
+        <td class="td-num"><span class="pill ${pillClass(d.N2,6)}">${d.N2}</span></td>
+        <td class="td-num"><span class="pill ${pillClass(d.N1,6)}">${d.N1}</span></td>
+        <td class="td-num"><span class="pill ${pillClass(d.N,12)}">${d.N}</span></td>
+        <td class="td-num"><span class="total-pill ${totalClass(d.TOTAL)}">${d.TOTAL}</span></td>
+      </tr>
+    `).join('');
+  }
+
+  // Count
+  document.getElementById('countLabel').textContent = `${filtered.length} pegawai`;
+
+  // Pagination
+  const totalPages = Math.ceil(filtered.length / PER_PAGE);
+  document.getElementById('pageInfo').textContent = `${start+1}–${Math.min(start+PER_PAGE, filtered.length)} dari ${filtered.length}`;
+  
+  const pageBtns = document.getElementById('pageBtns');
+  let btns = `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>←</button>`;
+  
+  let pages = [];
+  for (let p = 1; p <= totalPages; p++) {
+    if (p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1) pages.push(p);
+    else if (pages[pages.length-1] !== '...') pages.push('...');
+  }
+  
+  pages.forEach(p => {
+    if (p === '...') btns += `<button class="page-btn" disabled>…</button>`;
+    else btns += `<button class="page-btn ${p===currentPage?'active':''}" onclick="goPage(${p})">${p}</button>`;
+  });
+  
+  btns += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>→</button>`;
+  pageBtns.innerHTML = btns;
+}
+
+function goPage(p) {
+  const totalPages = Math.ceil(filtered.length / PER_PAGE);
+  if (p < 1 || p > totalPages) return;
+  currentPage = p;
+  renderTable();
+}
+
+function selectRow(idx) {
+  selectedIdx = idx;
+  const d = DATA[idx];
+  renderTable();
+  renderDetail(d);
+}
+
+function renderDetail(d) {
+  const pct2 = d.N2 / 6 * 100;
+  const pct1 = d.N1 / 6 * 100;
+  const pctN = d.N / 12 * 100;
+  
+  document.getElementById('detailContent').innerHTML = `
+    <div class="detail-content">
+      <div class="detail-name">${d.NAMA}</div>
+      <div class="detail-nip">NIP: ${d.NIP}</div>
+      <div class="detail-jabatan">${d.JABATAN}</div>
+
+      <div class="cuti-bars">
+        <div class="cuti-bar-item bar-n2">
+          <div class="cuti-bar-label">
+            <span>Sisa Cuti N-2 (2024)</span>
+            <span style="color:var(--accent4)">${d.N2} / 6 hari</span>
+          </div>
+          <div class="bar-track"><div class="bar-fill" style="width:${pct2}%"></div></div>
+        </div>
+        <div class="cuti-bar-item bar-n1">
+          <div class="cuti-bar-label">
+            <span>Sisa Cuti N-1 (2025)</span>
+            <span style="color:var(--accent3)">${d.N1} / 6 hari</span>
+          </div>
+          <div class="bar-track"><div class="bar-fill" style="width:${pct1}%"></div></div>
+        </div>
+        <div class="cuti-bar-item bar-n">
+          <div class="cuti-bar-label">
+            <span>Sisa Cuti N (2026)</span>
+            <span style="color:var(--accent2)">${d.N} / 12 hari</span>
+          </div>
+          <div class="bar-track"><div class="bar-fill" style="width:${pctN}%"></div></div>
+        </div>
+      </div>
+
+      <div class="total-section">
+        <div class="total-label">Total Sisa Cuti</div>
+        <div class="total-big">${d.TOTAL}</div>
+        <div class="total-max">dari maksimal 24 hari (${Math.round(d.TOTAL/24*100)}%)</div>
+      </div>
+    </div>
+  `;
+}
+
+function sortBy(field) {
+  if (sortField === field) sortAsc = !sortAsc;
+  else { sortField = field; sortAsc = true; }
+  filtered.sort((a,b) => {
+    let va = a[field], vb = b[field];
+    if (typeof va === 'string') va = va.toLowerCase(), vb = vb.toLowerCase();
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+  currentPage = 1;
+  renderTable();
+}
+
+document.getElementById('searchInput').addEventListener('input', function() {
+  const q = this.value.toLowerCase().trim();
+  filtered = DATA.filter(d =>
+    d.NAMA.toLowerCase().includes(q) ||
+    d.JABATAN.toLowerCase().includes(q) ||
+    d.NIP.includes(q)
+  );
+  currentPage = 1;
+  renderTable();
+});
+
+function renderTopList() {
+  const top = [...DATA].sort((a,b) => b.TOTAL - a.TOTAL).slice(0, 10);
+  const rankClass = ['gold','silver','bronze'];
+  document.getElementById('topList').innerHTML = top.map((d, i) => `
+    <div class="top-item" onclick="selectRow(${DATA.indexOf(d)})">
+      <span class="top-rank ${rankClass[i]||''}">${i+1}</span>
+      <span class="top-nama">${d.NAMA}</span>
+      <span class="top-total">${d.TOTAL}</span>
+    </div>
+  `).join('');
+}
+
+function renderDist() {
+  const ranges = [
+    { label: '20–24 hari', min: 20, max: 24, cls: 'c1' },
+    { label: '13–19 hari', min: 13, max: 19, cls: 'c2' },
+    { label: '1–12 hari',  min: 1,  max: 12, cls: 'c3' },
+    { label: '0 hari',     min: 0,  max: 0,  cls: 'c4' },
+  ];
+  const max = DATA.length;
+  document.getElementById('distChart').innerHTML = ranges.map(r => {
+    const count = DATA.filter(d => d.TOTAL >= r.min && d.TOTAL <= r.max).length;
+    const pct = count / max * 100;
+    return `
+      <div class="dist-bar-row">
+        <span class="dist-label">${r.label}</span>
+        <div class="dist-track">
+          <div class="dist-fill ${r.cls}" style="width:${pct}%">
+            ${count > 0 ? `<span class="dist-count">${count}</span>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// Init
+renderStats();
+renderTable();
+renderTopList();
+renderDist();
+</script>
+</body>
+</html>
